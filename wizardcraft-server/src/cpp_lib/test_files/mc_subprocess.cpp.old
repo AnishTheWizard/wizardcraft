@@ -1,0 +1,76 @@
+#include <iostream>
+#include <cstdio>
+#include <cstdlib>
+#include <cstring>
+#include <unistd.h>
+#include <fcntl.h>
+#include <sys/stat.h>
+#include <thread>
+
+const char* TO_PIPE = "/tmp/minecraft_server_T";
+const char* FROM_PIPE = "/tmp/minecraft_server_F";
+
+FILE* server_process = nullptr;
+
+
+void create_pipe() {
+    mkfifo(TO_PIPE, 0666);
+    mkfifo(FROM_PIPE, 0666);
+}
+
+void start_program() {
+    std::string start_command = "python test.py < " + std::string(PIPE_NAME);
+    server_process = popen(start_command.c_str(), "r");
+    
+    if(!server_process) {
+        std::cerr << "Failed to start server!" << std::endl;
+        return;
+    }
+}
+
+void print_buffer() {
+    char buffer[256];
+
+    while(fgets(buffer, sizeof(buffer), server_process) != nullptr) {
+        std::cout << buffer;
+    }
+}
+
+void send_input(const std::string& input) {
+    int pipefd = open(PIPE_NAME, O_WRONLY);
+
+    if(pipefd < 0) {
+        std::cerr << "Failed to open pipe!" << std::endl;
+        return;
+    }
+
+    std::string cmd = input + "\n";
+
+    write(pipefd, cmd.c_str(), cmd.size());
+
+    close(pipefd);
+}
+
+
+int main() {
+    
+    create_pipe();
+    // start_program();
+
+    std::thread buffer_thread(print_buffer);
+    buffer_thread.detach();
+
+    for(int i = 0; i < 10; ++i) {
+        std::string word;
+        std::getline(std::cin, word);
+        send_input(word);
+    }
+
+    // print_buffer();
+    buffer_thread.join();
+
+    pclose(server_process);
+
+
+    return 0;
+}
