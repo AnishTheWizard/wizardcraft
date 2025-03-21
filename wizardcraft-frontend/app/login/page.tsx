@@ -1,27 +1,28 @@
-'use server'
+"use server";
 import { Button } from "@heroui/button";
 import { Input } from "@heroui/input";
-import { Form } from '@heroui/form';
-import { createClient } from "@/lib/supabase/server";
-import { login } from "./actions";
+import { Form } from "@heroui/form";
 import { redirect } from "next/navigation";
 
+import { login } from "./actions";
+
+import { createClient } from "@/lib/supabase/server";
+
 export default async function LoginPage() {
+  const supabase = await createClient();
 
-  const supabase = await createClient()
+  // const { data, error } = await supabase.auth.getUser();
 
-  const { data, error } = await supabase.auth.getUser()
-    if (!error || data?.user) {
-      redirect('/');
-    }
+  // if (!error || data?.user) {
+  //   redirect("/");
+  // }
 
   const signIn = async (event: any) => {
     event.preventDefault();
     let formData = new FormData(event.currentTarget);
 
     login(formData);
-  }
-
+  };
 
   const signOut = async (event: any) => {
     console.log("sign out");
@@ -29,8 +30,7 @@ export default async function LoginPage() {
       console.log(data);
       await supabase.auth.getSession().then((data) => console.log(data));
     });
-    
-  }
+  };
 
   return (
     <div className="flex">
@@ -39,7 +39,9 @@ export default async function LoginPage() {
         <div className="w-full max-w-md space-y-6 py-6">
           <div className="space-y-4">
             <h1 className="text-3xl font-bold">Welcome McWonder2</h1>
-            <p className="text-gray-500 dark:text-gray-400">Enter your credentials to sign in to your account</p>
+            <p className="text-gray-500 dark:text-gray-400">
+              Enter your credentials to sign in to your account
+            </p>
           </div>
           <Form
             className="w-full max-w-xs flex flex-col gap-4"
@@ -71,10 +73,10 @@ export default async function LoginPage() {
             </div>
           </Form>
           <button color="primary" type="button" onClick={signOut}>
-              sign out
+            sign out
           </button>
         </div>
       </div>
     </div>
-  )
+  );
 }

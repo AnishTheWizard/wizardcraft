@@ -34,7 +34,7 @@ int main(int argc, char* argv[]) {
         close(out_pipe[1]);
         close(in_pipe[0]);
 
-        execl("/usr/bin/python3", "python3", "-u", "/Users/anishthewizard/Documents/Programming/minecraft_api/src/cpp_lib/test.py", (char*)NULL);
+        execl("/usr/bin/python3", "python3", "-u", "/Users/anishthewizard/Documents/Programming/wizardcraft/wizardcraft-server/src/cpp_lib/test.py", (char*)NULL);
 
         // error
     }
